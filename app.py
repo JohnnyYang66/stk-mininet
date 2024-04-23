@@ -45,6 +45,7 @@ def stop():
 @app.route('/modify/', methods=['POST'])
 def modify():
     modify_list = request.form.get('modify_list')
+    print("modify_list: ", modify_list)
     if not isinstance(modify_list, list):
         modify_list = list(modify_list)
 
