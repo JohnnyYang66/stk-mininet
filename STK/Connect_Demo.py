@@ -10,7 +10,7 @@ import time
 """
 SET TO TRUE TO USE ENGINE, FALSE TO USE GUI
 """
-useStkEngine = True
+useStkEngine = False
 Read_Scenario = False
 ############################################################################
 # Scenario Setup
@@ -20,7 +20,7 @@ Read_Scenario = False
 if useStkEngine:
     # Launch STK Engine
     print("Launching STK Engine...")
-    stkxApp = CreateObject("STKX11.Application")
+    stkxApp = CreateObject("STK11.Application")
 
     # Disable graphics. The NoGraphics property must be set to true before the root object is created.
     stkxApp.NoGraphics = True
@@ -283,6 +283,7 @@ if not Read_Scenario:
 # 创建卫星的字典，方便根据名字对卫星进行查找
 sat_list = stkRoot.CurrentScenario.Children.GetElements(STKObjects.eSatellite)
 sat_dic = {}
+# 这个list是传过去的json，到底应该传什么过去呢
 data_list = []
 print('--- Creating Satellite Dictionary ---')
 for sat in sat_list:
@@ -299,6 +300,7 @@ for i in range(0,10):
     ts+=600
     res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
     print("--- topo uptade ---")
+    print(data_list)
     data_list.clear()
     if i==0:
         mid_link()

@@ -44,7 +44,7 @@ def stop():
 # node1 node2 是要调整链接的两颗卫星
 @app.route('/modify/', methods=['POST'])
 def modify():
-    modify_list = request.form.get('modify_list')
+    modify_list = request.get_json()
     print("modify_list: ", modify_list)
     if not isinstance(modify_list, list):
         modify_list = list(modify_list)
