@@ -297,12 +297,12 @@ for i in range(0, 10):
 for i in range(0,10):
     Creating_All_Access()
     ts+=600
-    # res = requests.post(r'http://10.112.147.71:8000/modify/', json=data_list)
+    res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
     print("--- topo uptade ---")
     data_list.clear()
     if i==0:
         mid_link()
-        # res = requests.post(r'http://10.112.147.71:8000/modify/', json=data_list)
+        res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
     print(i)
     time.sleep(30)
 print("end")
