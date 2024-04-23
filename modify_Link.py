@@ -43,6 +43,8 @@ def modifyLink( net:Mininet, node1:str, node2:str, params1:Dict, params2:Dict=No
            enable_red: enable RED (False)
            max_queue_size: queue limit parameter for netem
     """
+    print("node1: ", node1)
+    print("node2: ", node2)
     h1 = net.getNodeByName( node1 )
     h2 = net.getNodeByName( node2 )
 
