@@ -6,4 +6,4 @@ data_list = []
 data_list.append(param)
 
 
-requests.post(r'http://127.0.0.1:8000/modify/', json=data_list)
+requests.post(r'http://172.27.228.88:8000/modify/', json=data_list)
