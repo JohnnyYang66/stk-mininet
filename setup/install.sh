@@ -21,7 +21,7 @@ sleep 2
 
 
 cd ~
-git clone git://github.com/mininet/mininet.git
+git clone https://github.com/mininet/mininet.git
 cd mininet
 
 git checkout -b mininet-2.3.0 2.3.0
