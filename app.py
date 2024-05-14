@@ -20,14 +20,14 @@ def creat(n,m):
     info( '*** Creating network\n' )
     net = Mininet(topo=STKTopo(n,m))
     topo['topo'] = net
-    
+
     net.start()
-    
+
     t = Thread(target=CLI, args=(net, ), daemon=True)
     t.start()
 
     # CLI( net )
-
+    print("here's the ")
     return 'created'
 
 
@@ -51,7 +51,7 @@ def modify():
 
     for param in modify_list:
         node1 = param.get('node1')
-        node2 = param.get('node1')
+        node2 = param.get('node2')
         modifyNode(topo['topo'], node1, node2, param)
 
     return 'modify finish'
