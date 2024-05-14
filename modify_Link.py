@@ -50,6 +50,8 @@ def modifyLink( net:Mininet, node1:str, node2:str, params1:Dict, params2:Dict=No
 
     links = h1.connectionsTo(h2)
 
+    print("links:", links)
+
     srcIntf = links[0][0]  # todo 判断有没有写错
     dstIntf = links[0][1]
 
