@@ -1,3 +1,11 @@
 import requests
 
-print(requests.post(r'http://172.27.228.88:8000/create/1/2/'))
+n = 5
+m = 10
+url = f'http://192.168.232.13:8000/create/{n}/{m}'
+
+# 发送 GET 请求
+response = requests.get(url)
+
+# 打印响应内容
+print(response.text)
