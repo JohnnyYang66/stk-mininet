@@ -35,8 +35,8 @@ def run():
     h2 = net.get('h2')
 
     # 使用 taskset 设置 CPU 亲和性并运行 Python 脚本
-    h1.cmd('taskset -c 1 python3 test.py &')
-    h2.cmd('taskset -c 2 python3 test.py &')
+    h1.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
+    h2.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
 
     # 启动命令行接口
     CLI(net)
