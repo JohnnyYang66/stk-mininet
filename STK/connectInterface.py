@@ -10,6 +10,11 @@ import time
 """
 SET TO TRUE TO USE ENGINE, FALSE TO USE GUI
 """
+
+# 实测发现，卫星数量至少为8才行，plane的数量可以调整
+numOfPlane = 1
+numOfSatellite = 8
+
 useStkEngine = False
 Read_Scenario = False
 ############################################################################
@@ -17,47 +22,7 @@ Read_Scenario = False
 ############################################################################
 
 
-if useStkEngine:
-    # Launch STK Engine
-    print("Launching STK Engine...")
-    stkxApp = CreateObject("STK11.Application")
 
-    # Disable graphics. The NoGraphics property must be set to true before the root object is created.
-    stkxApp.NoGraphics = True
-
-    # Create root object
-    stkRoot = CreateObject('AgStkObjects11.AgStkObjectRoot')
-
-else:
-    # Launch GUI
-    print("Launching STK...")
-    if not Read_Scenario:
-        uiApp = CreateObject("STK11.Application")
-    else:
-        uiApp = GetActiveObject("STK11.Application")
-    uiApp.Visible = True
-    uiApp.UserControl = True
-
-    # Get root object
-    stkRoot = uiApp.Personality2
-
-# Set date format
-stkRoot.UnitPreferences.SetCurrentUnit("DateFormat", "UTCG")
-# Create new scenario
-print("Creating scenario...")
-if not Read_Scenario:
-    # stkRoot.NewScenario('Kuiper')
-    stkRoot.NewScenario('StarLink')
-scenario = stkRoot.CurrentScenario
-scenario2 = scenario.QueryInterface(STKObjects.IAgScenario)
-scenario2.StartTime = '24 Sep 2020 16:00:00.00'
-scenario2.StopTime = '25 Sep 2020 16:20:00.00'
-dt='24 Sep 2020 16:00:00'
-ts = int(time.mktime(time.strptime(dt, "%d %b %Y %H:%M:%S")))
-
-
-totalTime = time.time() - startTime
-print("---Total time: {b:4.3f} sec ---".format(b=totalTime))
 
 
 # 创建星座
@@ -149,21 +114,20 @@ def Get_sat_receiver(sat, GT=20, frequency=12):
     return receiver2
 
 
-def get_time():
+def get_time(ts):
     timeNow = time.strftime("%d %b %Y %H:%M:%S", time.localtime(ts))
     timeNowLong = str(timeNow) + ".00"
     return timeNowLong
 
 
-
 # 计算传输链路
-def Compute_access(access):
+def Compute_access(access, ts):
     # print("---computer access---")
     access.ComputeAccess()
     accessDP = access.DataProviders.Item('Link Information')
     accessDP2 = accessDP.QueryInterface(STKObjects.IAgDataPrvTimeVar)
     Elements = ["Range"]
-    results = accessDP2.ExecSingleElements(get_time(), Elements)
+    results = accessDP2.ExecSingleElements(get_time(ts), Elements)
     # results2 = accessDP2.ExecSingleElements(scenario2.StopTime, Elements)
     # Times = results.DataSets.GetDataSetByName('Time').GetValues()  # 时间
     # EbNo = results.DataSets.GetDataSetByName('Eb/No').GetValues()  # 码元能量
@@ -179,7 +143,7 @@ def Compute_access(access):
     return Range
 
 
-def Creating_All_Access():
+def Creating_All_Access(sat_list, sat_dic, data_list, ts):
     # 首先清空场景中所有的链接
     print('--- Clearing All Access ---')
     print('--- create Access ---')
@@ -194,24 +158,23 @@ def Creating_All_Access():
         Set_Transmitter_Parameter(now_sat_transmitter, EIRP=20)
         # 发射机与接收机相连
         # 与后面的卫星的接收机相连
-        B_Name = sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num + 1) % 3)].InstanceName
-        F_Name = sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num - 1) % 3)].InstanceName
-        L_Name = sat_dic['node_' + str((now_plane_num - 1) % 3) + '-' + str(now_sat_num)].InstanceName
-        R_Name = sat_dic['node_' + str((now_plane_num + 1) % 3) + '-' + str(now_sat_num)].InstanceName
+        B_Name = sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num + 1) % numOfSatellite)].InstanceName
+        F_Name = sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num - 1) % numOfSatellite)].InstanceName
+        L_Name = sat_dic['node_' + str((now_plane_num - 1) % numOfPlane) + '-' + str(now_sat_num)].InstanceName
+        R_Name = sat_dic['node_' + str((now_plane_num + 1) % numOfPlane) + '-' + str(now_sat_num)].InstanceName
         access_backward = now_sat_transmitter.GetAccessToObject(
-            Get_sat_receiver(sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num + 1) % 3)]))
+            Get_sat_receiver(sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num + 1) % numOfSatellite)]))
         # 与前面的卫星的接收机相连
         access_forward = now_sat_transmitter.GetAccessToObject(
-            Get_sat_receiver(sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num - 1) % 3)]))
+            Get_sat_receiver(sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num - 1) % numOfSatellite)]))
         # 与左面的卫星的接收机相连
         access_left = now_sat_transmitter.GetAccessToObject(
-            Get_sat_receiver(sat_dic['node_' + str((now_plane_num - 1) % 3) + '-' + str(now_sat_num)]))
+            Get_sat_receiver(sat_dic['node_' + str((now_plane_num - 1) % numOfPlane) + '-' + str(now_sat_num)]))
         # 与右面的卫星的接收机相连
         access_right = now_sat_transmitter.GetAccessToObject(
-            Get_sat_receiver(sat_dic['node_' + str((now_plane_num + 1) % 3) + '-' + str(now_sat_num)]))
-        # 实在找不出报错的原因在哪了，一开始debug没问题，后来不知道怎么又
-        B_Range = Compute_access(access_backward)
-        F_Range = Compute_access(access_forward)
+            Get_sat_receiver(sat_dic['node_' + str((now_plane_num + 1) % numOfPlane) + '-' + str(now_sat_num)]))
+        B_Range = Compute_access(access_backward, ts)
+        F_Range = Compute_access(access_forward, ts)
         # L_Range = Compute_access(access_left)
         # R_Range = Compute_access(access_right)
         B_Dict = {'node1': now_sat_name, 'node2': B_Name, 'bw': 20, 'delay': str(int(B_Range[0] / 300))+'ms', 'jitter': '1ms',
@@ -262,7 +225,8 @@ def Change_Sat_color(sat_list):
         orbit = attributes.QueryInterface(STKObjects.IAgVeGfxAttributesOrbit)
         orbit.IsOrbitVisible = False  # 将轨道设置为不可见
 
-def mid_link():
+
+def mid_link(sat_list, data_list):
     for each_sat in sat_list:
         now_sat_name = each_sat.InstanceName
         tmpparam={'node1': now_sat_name, 'node2': "mid1", 'bw': 20, 'delay': "20ms", 'jitter': '1ms',
@@ -270,41 +234,97 @@ def mid_link():
         data_list.append(tmpparam)
 
 
+if useStkEngine:
+    # Launch STK Engine
+    print("Launching STK Engine...")
+    stkxApp = CreateObject("STK11.Application")
 
-# 如果不是读取当前场景，即首次创建场景
-if not Read_Scenario:
-    Creat_satellite(numOrbitPlanes=3, numSatsPerPlane=3, hight=550, Inclination=53)  # Starlink
-    # Kuiper
-    # Creat_satellite(numOrbitPlanes=34, numSatsPerPlane=34, hight=630, Inclination=51.9, name='KPA')  # Phase A
-    # Creat_satellite(numOrbitPlanes=32, numSatsPerPlane=32, hight=610, Inclination=42, name='KPB')  # Phase B
-    # Creat_satellite(numOrbitPlanes=28, numSatsPerPlane=28, hight=590, Inclination=33, name='KPC')  # Phase C
+    # Disable graphics. The NoGraphics property must be set to true before the root object is created.
+    stkxApp.NoGraphics = True
+
+    # Create root object
+    stkRoot = CreateObject('AgStkObjects11.AgStkObjectRoot')
+
+else:
+    # Launch GUI
+    print("Launching STK...")
+    if not Read_Scenario:
+        uiApp = CreateObject("STK11.Application")
+    else:
+        uiApp = GetActiveObject("STK11.Application")
+    uiApp.Visible = True
+    uiApp.UserControl = True
+
+    # Get root object
+    stkRoot = uiApp.Personality2
+
+
+def startStk():
+    # Set date format
+    stkRoot.UnitPreferences.SetCurrentUnit("DateFormat", "UTCG")
+    # Create new scenario
+    print("Creating scenario...")
+    if not Read_Scenario:
+        # stkRoot.NewScenario('Kuiper')
+        stkRoot.NewScenario('StarLink')
+    scenario = stkRoot.CurrentScenario
+    scenario2 = scenario.QueryInterface(STKObjects.IAgScenario)
+    scenario2.StartTime = '24 Sep 2020 16:00:00.00'
+    scenario2.StopTime = '25 Sep 2020 16:20:00.00'
+    dt='24 Sep 2020 16:00:00'
+    ts = int(time.mktime(time.strptime(dt, "%d %b %Y %H:%M:%S")))
+
+
+    totalTime = time.time() - startTime
+    print("---Total time: {b:4.3f} sec ---".format(b=totalTime))
+    return scenario, ts
+
+
+def createSatellite(ts):
+    # 如果不是读取当前场景，即首次创建场景
+    if not Read_Scenario:
+        Creat_satellite(numOrbitPlanes=numOfPlane, numSatsPerPlane=numOfSatellite, hight=550, Inclination=53)  # Starlink
+        # Kuiper
+        # Creat_satellite(numOrbitPlanes=34, numSatsPerPlane=34, hight=630, Inclination=51.9, name='KPA')  # Phase A
+        # Creat_satellite(numOrbitPlanes=32, numSatsPerPlane=32, hight=610, Inclination=42, name='KPB')  # Phase B
+        # Creat_satellite(numOrbitPlanes=28, numSatsPerPlane=28, hight=590, Inclination=33, name='KPC')  # Phase C
+        sat_list = stkRoot.CurrentScenario.Children.GetElements(STKObjects.eSatellite)
+        Add_transmitter_receiver(sat_list)
+
+    # 创建卫星的字典，方便根据名字对卫星进行查找
     sat_list = stkRoot.CurrentScenario.Children.GetElements(STKObjects.eSatellite)
-    Add_transmitter_receiver(sat_list)
+    sat_dic = {}
+    # 这个list是传过去的json，到底应该传什么过去呢
+    data_list = []
+    print('--- Creating Satellite Dictionary ---')
+    for sat in sat_list:
+        sat_dic[sat.InstanceName] = sat
+    Plane_num = []
+    for i in range(0, numOfPlane):
+        Plane_num.append(i)
+    Sat_num = []
+    for i in range(0, numOfSatellite):
+        Sat_num.append(i)
 
-# 创建卫星的字典，方便根据名字对卫星进行查找
-sat_list = stkRoot.CurrentScenario.Children.GetElements(STKObjects.eSatellite)
-sat_dic = {}
-# 这个list是传过去的json，到底应该传什么过去呢
-data_list = []
-print('--- Creating Satellite Dictionary ---')
-for sat in sat_list:
-    sat_dic[sat.InstanceName] = sat
-Plane_num = []
-for i in range(0, 3):
-    Plane_num.append(i)
-Sat_num = []
-for i in range(0, 3):
-    Sat_num.append(i)
-
-for i in range(0,3):
-    Creating_All_Access()
-    ts+=600
-    res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
-    print("--- topo uptade ---")
-    data_list.clear()
-    if i==0:
-        mid_link()
+    for i in range(0,1):
+        Creating_All_Access(sat_list, sat_dic, data_list, ts)
+        ts+=600
         res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
-    print(i)
-    time.sleep(30)
-print("end")
+        print("--- topo uptade ---")
+        data_list.clear()
+        if i==0:
+            mid_link(sat_list, data_list)
+            res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
+        print(i)
+        time.sleep(30)
+    print("end")
+
+
+def setArgs(plane=1, satellite=8):
+    numOfPlane = plane
+    numOfSatellite = satellite
+
+
+if __name__ == "__main__":
+    scenario, ts = startStk()
+    createSatellite(ts)
