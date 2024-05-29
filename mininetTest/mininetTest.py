@@ -12,8 +12,11 @@ class MyTopo(Topo):
         s1 = self.addSwitch('s1')
 
         # 添加主机
-        h1 = self.addHost('h1', cls=CPULimitedHost, cpu=0.1)
-        h2 = self.addHost('h2', cls=CPULimitedHost, cpu=0.1)
+        h1 = self.addHost('h1', cls=CPULimitedHost, cores=1)
+        h2 = self.addHost('h2', cls=CPULimitedHost, cores=1)
+
+        # h1 = self.addHost('h1', cls=CPULimitedHost, cpu=0.1)
+        # h2 = self.addHost('h2', cls=CPULimitedHost, cpu=0.1)
 
         # 创建主机与交换机之间的链接
         self.addLink(h1, s1, cls=TCLink, bw=10)
@@ -35,8 +38,11 @@ def run():
     h2 = net.get('h2')
 
     # 使用 taskset 设置 CPU 亲和性并运行 Python 脚本
-    h1.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
-    h2.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
+    # h1.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
+    # h2.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
+
+    h1.cmd('python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
+    h2.cmd('python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
 
     # 启动命令行接口
     CLI(net)
