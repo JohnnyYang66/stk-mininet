@@ -7,10 +7,11 @@ from threading import Thread
 
 from modify_Link import modifyLink, modifyNode
 
-
 app = Flask(__name__)
 
 topo={'topo':None}
+
+task_dict = {"default": "python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &"}
 
 
 # 使用方法 requests.get(r'http://ip:8000/create/轨道数/轨道卫星数')
@@ -54,6 +55,23 @@ def modify():
         modifyNode(topo['topo'], node1, node2, param)
 
     return 'modify finish'
+
+
+@app.route('/initTask/', methods=['POST'])
+def initTask():
+    if topo['topo'] is None:
+        return 'mininet not initialized'
+    task_list = request.get_json()
+    print("task_list: ", task_list)
+    net = topo['topo']
+    # 获取节点名称和任务名称
+    for task in task_list:
+        node = task[0]
+        task_name = task[1]
+        host = net.get(node)
+        host.cmd(task_name)
+    return 'task initialized'
+
 
 
 if __name__ == "__main__":
