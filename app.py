@@ -67,9 +67,12 @@ def initTask():
     # 获取节点名称和任务名称
     for task in task_list:
         node = task[0]
-        task_name = task[1]
+        task_name = task_dict[task[1]]
         host = net.get(node)
         host.cmd(task_name)
+        print("net: ", net)
+        print("node: ", node)
+        print("task_name: ", task_name)
     return 'task initialized'
 
 
