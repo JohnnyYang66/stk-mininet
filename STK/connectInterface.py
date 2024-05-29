@@ -193,6 +193,54 @@ def Creating_All_Access(sat_list, sat_dic, data_list, ts):
     # stkRoot.ExecuteCommand('RemoveAllAccess /')
 
 
+# 获得链路信息
+def getLinkChange(sat_list, sat_dic):
+    # 计算某个卫星与其通信的四颗卫星的链路质量，并生成报告
+    data_list = []
+    for each_sat in sat_list:
+        now_sat_name = each_sat.InstanceName
+        now_plane_num = int(now_sat_name.split('-')[0][5:])
+        now_sat_num = int(now_sat_name.split('-')[1])
+        now_sat_transmitter = each_sat.Children.GetElements(STKObjects.eTransmitter)[0]  # 找到该卫星的发射机
+        Set_Transmitter_Parameter(now_sat_transmitter, EIRP=20)
+        # 发射机与接收机相连
+        # 与后面的卫星的接收机相连
+        B_Name = sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num + 1) % numOfSatellite)].InstanceName
+        F_Name = sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num - 1) % numOfSatellite)].InstanceName
+        L_Name = sat_dic['node_' + str((now_plane_num - 1) % numOfPlane) + '-' + str(now_sat_num)].InstanceName
+        R_Name = sat_dic['node_' + str((now_plane_num + 1) % numOfPlane) + '-' + str(now_sat_num)].InstanceName
+        access_backward = now_sat_transmitter.GetAccessToObject(
+            Get_sat_receiver(sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num + 1) % numOfSatellite)]))
+        # 与前面的卫星的接收机相连
+        access_forward = now_sat_transmitter.GetAccessToObject(
+            Get_sat_receiver(sat_dic['node_' + str(now_plane_num) + '-' + str((now_sat_num - 1) % numOfSatellite)]))
+        # 与左面的卫星的接收机相连
+        access_left = now_sat_transmitter.GetAccessToObject(
+            Get_sat_receiver(sat_dic['node_' + str((now_plane_num - 1) % numOfPlane) + '-' + str(now_sat_num)]))
+        # 与右面的卫星的接收机相连
+        access_right = now_sat_transmitter.GetAccessToObject(
+            Get_sat_receiver(sat_dic['node_' + str((now_plane_num + 1) % numOfPlane) + '-' + str(now_sat_num)]))
+        dt = '24 Sep 2020 16:00:00'
+        ts = int(time.mktime(time.strptime(dt, "%d %b %Y %H:%M:%S")))
+        B_Range = Compute_access(access_backward, ts)
+        F_Range = Compute_access(access_forward, ts)
+        # L_Range = Compute_access(access_left)
+        # R_Range = Compute_access(access_right)
+        B_Dict = {'node1': now_sat_name, 'node2': B_Name, 'bw': 20, 'delay': str(int(B_Range[0] / 300)) + 'ms',
+                  'jitter': '1ms',
+                  'loss': 0}
+        F_Dict = {'node1': now_sat_name, 'node2': F_Name, 'bw': 20,
+                  'delay': str(int(F_Range[0] / 300)) + 'ms', 'jitter': '1ms', 'loss': 0}
+        # L_Dict = {'node1': now_sat_name, 'node2': L_Name, 'bw': 20, 'delay': str(int(L_Range[0] / 300))+'ms', 'jitter': '1ms',
+        #           'loss': 0}
+        # R_Dict = {'node1': now_sat_name, 'node2': R_Name, 'bw': 20, 'delay':str(int(R_Range[0] / 300))+'ms', 'jitter': '1ms',
+        #           'loss': 0}
+        data_list.append(B_Dict)
+        data_list.append(F_Dict)
+    return data_list
+
+
+
 def Change_Sat_color(sat_list):
     # 修改卫星及其轨道的颜色
     print('Changing Color of Satellite')
@@ -309,6 +357,7 @@ def createSatellite(scenario, ts):
     mid_link(sat_list, data_list)
     print(data_list)
     # 这个data_list里面是各个node之间的时延抖动信息
+    return sat_list, sat_dic
 
 
 def modifySatellite(sat_list, data_list):

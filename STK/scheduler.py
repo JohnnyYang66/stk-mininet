@@ -1,4 +1,4 @@
-# from STK import connectInterface
+from STK import connectInterface
 import requests
 
 
@@ -31,7 +31,8 @@ def startSatellite(numOfPlane, numOfSatellite):
     # 启动STK
     scenario, ts = connectInterface.startStk()
     # 设置卫星
-    connectInterface.createSatellite(scenario, ts)
+    sat_list, sat_dic = connectInterface.createSatellite(scenario, ts)
+    return sat_list, sat_dic
 
 
 # 给远程主机发送指令，创建Mininet拓扑
@@ -48,29 +49,37 @@ def initTask(numOfPlane, numOfSatellite):
             name = generateName(i, j)
             task_list.append([name, 'default'])
     res = requests.post(r'http://{ip}:{port}/initTask/'.format(ip=ip, port=port), json=task_list)
-    print(res.text)
+    print("initTask: ", res.text)
 
 
 # 获得节点cpu信息
 def getNodeInfo():
     res = requests.get(r'http://{ip}:{port}/getNodeInfo/'.format(ip=ip, port=port))
-    print(res.text)
+    print("getNodeInfo: ", res.text)
 
+
+# 获得STK的链路信息
+def getSTKInfo(sat_list, sat_dic):
+    data_list = connectInterface.getLinkChange(sat_list, sat_dic)
+    print("getSTKInfo: ", data_list)
 
 
 if __name__ == "__main__":
-    # # 记录星座情况
-    # sateList = []
-    # # 启动星座
-    # startSatellite(plane, satellite)
-    # # 初始化列表
-    # initSateList(sateList, plane, satellite)
+    # 记录星座情况
+    sateList = []
+    # 启动星座
+    sat_list, sat_dic = startSatellite(plane, satellite)
+    # 初始化列表
+    initSateList(sateList, plane, satellite)
+    # 同步节点时延等信息
+    getSTKInfo(sat_list, sat_dic)
     # 发送命令，在mininet上创建网络
-    # createMN(plane, satellite)
-    # # 为mininet上的节点初始化任务
-    # initTask(plane, satellite)
+    createMN(plane, satellite)
+    # 为mininet上的节点初始化任务
+    initTask(plane, satellite)
     # 获得节点cpu信息
     getNodeInfo()
+
 
 
 
