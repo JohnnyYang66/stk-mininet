@@ -122,6 +122,7 @@ def getNodeInfo():
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     stdout, stderr = process.communicate()
     # 处理输出结果
+    print("getNodeInfo: ", stdout)
     lines = stdout.splitlines()
     process_info = []
     for line in lines:
@@ -138,4 +139,5 @@ def getNodeInfo():
 
 
 if __name__ == "__main__":
+    # 20240530 modifyCore这个接口还没测，回头看看
     app.run('0.0.0.0', '8000', debug=True)
