@@ -9,12 +9,17 @@ ip = "192.168.232.13"
 port = 8000
 
 
+# 生成节点名字
+def generateName(numOfPlane, numOfSatellite):
+    return "node_{i}-{j}".format(i=numOfPlane, j=numOfSatellite)
+
+
 # 初始化星座列表
 def initSateList(sateList, numOfPlane, numOfSatellite):
     for i in range(numOfPlane):
         sateList.append(dict())
         for j in range(numOfSatellite):
-            name = "node_{i}-{j}".format(i=i, j=j)
+            name = generateName(i, j)
             sateList[i][name] = list()
     print(sateList)
 
@@ -35,6 +40,17 @@ def createMN(numOfPlane, numOfSatellite):
     print(res.text)
 
 
+# 为节点初始化任务
+def initTask(numOfPlane, numOfSatellite):
+    task_list = []
+    for i in range(numOfPlane):
+        for j in range(numOfSatellite):
+            name = generateName(i, j)
+            task_list.append([name, 'default'])
+    res = requests.post(r'http://{ip}:{port}/initTask/'.format(ip=ip, port=port), json=task_list)
+    print(res.text)
+
+
 if __name__ == "__main__":
     # # 记录星座情况
     # sateList = []
@@ -42,8 +58,10 @@ if __name__ == "__main__":
     # startSatellite(plane, satellite)
     # # 初始化列表
     # initSateList(sateList, plane, satellite)
-    # 发送命令，在mininet上创建
+    # 发送命令，在mininet上创建网络
     createMN(plane, satellite)
+    # 为mininet上的节点初始化任务
+    initTask(plane, satellite)
 
 
 
