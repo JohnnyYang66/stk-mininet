@@ -38,7 +38,6 @@ def stop():
     return 'stopped'
 
 
-
 # 使用方法 requests.post(r'http://ip:8000/modify/', data = param_list)
 # param_list 由若干个字典构成,每个字典包含{node1, node2, bw, delay, jitter, loss}
 # node1 node2 是要调整链接的两颗卫星

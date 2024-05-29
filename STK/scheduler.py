@@ -1,9 +1,12 @@
 from STK import connectInterface
+import requests
 
 
 # 这个的主要目的是提供接口，包括建立星座，记录任务情况等
 plane = 1
 satellite = 8
+ip = "192.168.232.13"
+port = 8000
 
 
 # 初始化星座列表
@@ -11,7 +14,7 @@ def initSateList(sateList, numOfPlane, numOfSatellite):
     for i in range(numOfPlane):
         sateList.append(dict())
         for j in range(numOfSatellite):
-            name = "node_%d-%d".format(i, j)
+            name = "node_{i}-{j}".format(i=i, j=j)
             sateList[i][name] = list()
     print(sateList)
 
@@ -26,13 +29,21 @@ def startSatellite(numOfPlane, numOfSatellite):
     connectInterface.createSatellite(scenario, ts)
 
 
+# 给远程主机发送指令，创建Mininet拓扑
+def createMN(numOfPlane, numOfSatellite):
+    res = requests.get(r'http://{ip}:{port}/create/{n}/{m}'.format(ip=ip, port=port, n=numOfPlane, m=numOfSatellite))
+    print(res.text)
+
+
 if __name__ == "__main__":
-    # 记录星座情况
-    sateList = []
-    # 启动星座
-    startSatellite(plane, satellite)
-    # 初始化列表
-    initSateList(sateList, plane, satellite)
+    # # 记录星座情况
+    # sateList = []
+    # # 启动星座
+    # startSatellite(plane, satellite)
+    # # 初始化列表
+    # initSateList(sateList, plane, satellite)
+    # 发送命令，在mininet上创建
+    createMN(plane, satellite)
 
 
 

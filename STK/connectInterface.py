@@ -305,18 +305,16 @@ def createSatellite(scenario, ts):
     Sat_num = []
     for i in range(0, numOfSatellite):
         Sat_num.append(i)
+    Creating_All_Access(sat_list, sat_dic, data_list, ts)
+    mid_link(sat_list, data_list)
+    print(data_list)
+    # 这个data_list里面是各个node之间的时延抖动信息
 
-    for i in range(0,1):
-        Creating_All_Access(sat_list, sat_dic, data_list, ts)
-        ts+=600
-        res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
-        print("--- topo uptade ---")
-        data_list.clear()
-        if i==0:
-            mid_link(sat_list, data_list)
-            res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
-        print(i)
-        time.sleep(30)
+
+def modifySatellite(sat_list, data_list):
+    res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
+    print("--- topo uptade ---")
+    data_list.clear()
     print("end")
 
 
