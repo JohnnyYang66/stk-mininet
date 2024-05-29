@@ -14,12 +14,28 @@ topo={'topo':None}
 task_dict = {"default": "python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &"}
 
 
+# 为各个node分配核
+def assignCore(n, m):
+    init_list = []
+    for i in range(n):
+        temp_list = []
+        k = 0
+        for j in range(m):
+            temp_list.append(k % 4)
+            k += 1
+        init_list.append(temp_list)
+    print("init_list: ", init_list)
+    return init_list
+
+
 # 使用方法 requests.get(r'http://ip:8000/create/轨道数/轨道卫星数')
 @app.route('/create/<int:n>/<int:m>')
 def creat(n,m):
     setLogLevel( 'info' )
     info( '*** Creating network\n' )
-    net = Mininet(topo=STKTopo(n,m))
+    # TODO:暂时将init_list设置为均分，后面核多的话再改
+    init_list = assignCore(n, m)
+    net = Mininet(topo=STKTopo(n, m, init_list))
     topo['topo'] = net
 
     net.start()

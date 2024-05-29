@@ -11,7 +11,7 @@ class MyTopo(Topo):
         # 添加交换机
         s1 = self.addSwitch('s1')
 
-        # 添加主机
+        # 添加主机，cores从0开始，对应htop中的1号核开始
         h1 = self.addHost('h1', cls=CPULimitedHost, cores=1)
         h2 = self.addHost('h2', cls=CPULimitedHost, cores=1)
 
