@@ -41,8 +41,8 @@ def run():
     # h1.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
     # h2.cmd('taskset -c 0 python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
 
-    h1.cmd('python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
-    h2.cmd('python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py &')
+    h1.cmd('python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py 1 &')
+    h2.cmd('python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py 2 &')
 
     # 启动命令行接口
     CLI(net)
