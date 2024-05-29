@@ -1,4 +1,4 @@
-from STK import connectInterface
+# from STK import connectInterface
 import requests
 
 
@@ -51,6 +51,13 @@ def initTask(numOfPlane, numOfSatellite):
     print(res.text)
 
 
+# 获得节点cpu信息
+def getNodeInfo():
+    res = requests.get(r'http://{ip}:{port}/getNodeInfo/'.format(ip=ip, port=port))
+    print(res.text)
+
+
+
 if __name__ == "__main__":
     # # 记录星座情况
     # sateList = []
@@ -59,9 +66,11 @@ if __name__ == "__main__":
     # # 初始化列表
     # initSateList(sateList, plane, satellite)
     # 发送命令，在mininet上创建网络
-    createMN(plane, satellite)
-    # 为mininet上的节点初始化任务
-    initTask(plane, satellite)
+    # createMN(plane, satellite)
+    # # 为mininet上的节点初始化任务
+    # initTask(plane, satellite)
+    # 获得节点cpu信息
+    getNodeInfo()
 
 
 
