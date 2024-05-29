@@ -26,7 +26,7 @@ Read_Scenario = False
 
 
 # 创建星座
-def Creat_satellite(numOrbitPlanes=72, numSatsPerPlane=22, hight=550, Inclination=53, name='node_'):
+def Creat_satellite(scenario, numOrbitPlanes=72, numSatsPerPlane=22, hight=550, Inclination=53, name='node_'):
     # Create constellation object
     print("--- create satellite ,total num :{a}    ---".format(a=numOrbitPlanes * numSatsPerPlane))
     constellation = scenario.Children.New(STKObjects.eConstellation, name)
@@ -280,10 +280,10 @@ def startStk():
     return scenario, ts
 
 
-def createSatellite(ts):
+def createSatellite(scenario, ts):
     # 如果不是读取当前场景，即首次创建场景
     if not Read_Scenario:
-        Creat_satellite(numOrbitPlanes=numOfPlane, numSatsPerPlane=numOfSatellite, hight=550, Inclination=53)  # Starlink
+        Creat_satellite(scenario, numOrbitPlanes=numOfPlane, numSatsPerPlane=numOfSatellite, hight=550, Inclination=53)  # Starlink
         # Kuiper
         # Creat_satellite(numOrbitPlanes=34, numSatsPerPlane=34, hight=630, Inclination=51.9, name='KPA')  # Phase A
         # Creat_satellite(numOrbitPlanes=32, numSatsPerPlane=32, hight=610, Inclination=42, name='KPB')  # Phase B
@@ -327,4 +327,4 @@ def setArgs(plane=1, satellite=8):
 
 if __name__ == "__main__":
     scenario, ts = startStk()
-    createSatellite(ts)
+    createSatellite(scenario, ts)

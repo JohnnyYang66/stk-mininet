@@ -6,6 +6,16 @@ plane = 1
 satellite = 8
 
 
+# 初始化星座列表
+def initSateList(sateList, numOfPlane, numOfSatellite):
+    for i in range(numOfPlane):
+        sateList.append(dict())
+        for j in range(numOfSatellite):
+            name = "node_%d-%d".format(i, j)
+            sateList[i][name] = list()
+    print(sateList)
+
+
 # 启动STK，需求应该是输入轨道数量，卫星数量，建立星座
 def startSatellite(numOfPlane, numOfSatellite):
     # 设置星座参数
@@ -13,7 +23,7 @@ def startSatellite(numOfPlane, numOfSatellite):
     # 启动STK
     scenario, ts = connectInterface.startStk()
     # 设置卫星
-    connectInterface.createSatellite(ts)
+    connectInterface.createSatellite(scenario, ts)
 
 
 if __name__ == "__main__":
@@ -21,7 +31,8 @@ if __name__ == "__main__":
     sateList = []
     # 启动星座
     startSatellite(plane, satellite)
-    #
+    # 初始化列表
+    initSateList(sateList, plane, satellite)
 
 
 
