@@ -361,7 +361,7 @@ def createSatellite(scenario, ts):
 
 
 def modifySatellite(sat_list, data_list):
-    res = requests.post(r'http://192.168.232.13:8000/modify/', json=data_list)
+    res = requests.post(r'http://192.168.232.15:8000/modify/', json=data_list)
     print("--- topo uptade ---")
     data_list.clear()
     print("end")
