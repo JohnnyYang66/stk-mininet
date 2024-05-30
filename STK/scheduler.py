@@ -1,4 +1,4 @@
-from STK import connectInterface
+# from STK import connectInterface
 import requests
 
 
@@ -64,21 +64,35 @@ def getSTKInfo(sat_list, sat_dic):
     print("getSTKInfo: ", data_list)
 
 
+# 改变指定卫星上任务的核心，
+def changeTaskCore(plane, satellite, new_core):
+    name = generateName(plane, satellite)
+    # new_core从0开始
+    task_list = [{'name': name, 'core': new_core}]
+    res = requests.post(r'http://{ip}:{port}/modifyCore/'.format(ip=ip, port=port), json=task_list)
+    print("changeTaskCore: ", res.text)
+
+
+
 if __name__ == "__main__":
-    # 记录星座情况
-    sateList = []
-    # 启动星座
-    sat_list, sat_dic = startSatellite(plane, satellite)
-    # 初始化列表
-    initSateList(sateList, plane, satellite)
-    # 同步节点时延等信息
-    getSTKInfo(sat_list, sat_dic)
+    # # 记录星座情况
+    # sateList = []
+    # # 启动星座
+    # sat_list, sat_dic = startSatellite(plane, satellite)
+    # # 初始化列表
+    # initSateList(sateList, plane, satellite)
+    # # 同步节点时延等信息
+    # getSTKInfo(sat_list, sat_dic)
     # 发送命令，在mininet上创建网络
     createMN(plane, satellite)
     # 为mininet上的节点初始化任务
     initTask(plane, satellite)
     # 获得节点cpu信息
     getNodeInfo()
+    # 改变节点上面运行任务占用的核心
+    changeTaskCore(0, 0, 2)
+
+
 
 
 
