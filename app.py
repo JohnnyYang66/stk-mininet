@@ -36,8 +36,15 @@ def assignCore(n, m):
     return init_list
 
 
+# 生成节点名字
+def generateName(numOfPlane, numOfSatellite):
+    return "node_{i}-{j}".format(i=numOfPlane, j=numOfSatellite)
+
+
 def changeCore(node, pid, new_core):
-    node.cmd('taskset -cp {} {}'.format(new_core, pid))
+    cmd = 'taskset -cp {} {}'.format(new_core, pid)
+    print("changeCore cmd: ", cmd)
+    node.cmd(cmd)
 
 
 # 使用方法 requests.get(r'http://ip:8000/create/轨道数/轨道卫星数')
@@ -88,6 +95,7 @@ def modify():
     return 'modify finish'
 
 
+# 这个先创建任务，再分配到指定的核上面去
 @app.route('/initTask/', methods=['POST'])
 def initTask():
     if topo['topo'] is None:
@@ -98,15 +106,6 @@ def initTask():
     init_list = assignCore(numPlane, numSatellite)
     # 获取节点名称和任务名称
     # 发现一开始不能taskset任务，一开始先设成自由的，后面再改就行
-    # for i in range(len(task_list)):
-    #     node = task_list[i][0]
-    #     task_name = task_dict[task_list[i][1]]
-    #     host = net.get(node)
-    #     core = init_list[0][i]
-    #     # 给程序多传一个参数，方便后面找到这个进程
-    #     cmd = "taskset -c {} ".format(core) + task_name + " {} &".format(node)
-    #     print("cmd: ", cmd)
-    #     host.cmd(cmd)
     for task in task_list:
         node = task[0]
         task_name = task_dict[task[1]]
@@ -116,7 +115,19 @@ def initTask():
         cmd = task_name + " {} &".format(node)
         print("cmd: ", cmd)
         host.cmd(cmd)
-    print("node_dict: ", node_dict)
+
+    # 后面再把任务set到指定的核上面去
+    # 使用这个函数更新一下pid的情况到字典
+    getNodeInfo()
+    # 然后再把任务分配到指定的核上面去
+    for task in task_list:
+        node = task[0]
+        host = net.get(node)
+        pid = node_dict[node]["pid"]
+        nAndM = node.split('_')[1].split('-')
+        core = init_list[int(nAndM[0])][int(nAndM[1])]
+        changeCore(host, pid, core)
+
     return 'task initialized'
 
 
@@ -131,9 +142,10 @@ def modifyCore():
     net = topo['topo']
 
     for param in modify_list:
-        pid = param['pid']
         core = param['core']
-        node = net.get(param['node'])
+        name = param['name']
+        node = net.get(name)
+        pid = node_dict[name]['pid']
         changeCore(node, pid, core)
 
     return 'modify finish'
@@ -160,6 +172,10 @@ def getNodeInfo():
             cmd = parts[-1]
             process_info.append((pid, psr, cpu, cmd))
     print("process_info: ", process_info)
+    for i in process_info:
+        name = i[3]
+        node_dict[name]['pid'] = i[0]
+    print("node_dict: ", node_dict)
     return jsonify(process_info)
 
 
