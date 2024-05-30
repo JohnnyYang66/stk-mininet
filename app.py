@@ -11,7 +11,12 @@ app = Flask(__name__)
 
 topo={'topo':None}
 
+# 字典，名称：启动命令
 task_dict = {"default": "python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py"}
+
+# 字典，name：内容
+# 里面一层内容，node：node指针，pid：进程号，task：任务名，core：核心号
+node_dict = dict()
 
 numPlane = 0
 numSatellite = 0
@@ -46,7 +51,7 @@ def creat(n,m):
     info( '*** Creating network\n' )
     # 暂时将init_list设置为均分，后面核多的话再改
     init_list = assignCore(n, m)
-    net = Mininet(topo=STKTopo(n, m, init_list))
+    net = Mininet(topo=STKTopo(n, m, init_list, node_dict))
     topo['topo'] = net
 
     net.start()
@@ -55,7 +60,6 @@ def creat(n,m):
     t.start()
 
     # CLI( net )
-    print("here's the ")
     return 'created'
 
 
@@ -93,23 +97,26 @@ def initTask():
     net = topo['topo']
     init_list = assignCore(numPlane, numSatellite)
     # 获取节点名称和任务名称
-    for i in range(len(task_list)):
-        node = task_list[i][0]
-        task_name = task_dict[task_list[i][1]]
-        host = net.get(node)
-        core = init_list[0][i]
-        # 给程序多传一个参数，方便后面找到这个进程
-        cmd = "taskset -c {} ".format(core) + task_name + " {} &".format(node)
-        print("cmd: ", cmd)
-        host.cmd(cmd)
-    # for task in task_list:
-    #     node = task[0]
-    #     task_name = task_dict[task[1]]
+    # 发现一开始不能taskset任务，一开始先设成自由的，后面再改就行
+    # for i in range(len(task_list)):
+    #     node = task_list[i][0]
+    #     task_name = task_dict[task_list[i][1]]
     #     host = net.get(node)
+    #     core = init_list[0][i]
     #     # 给程序多传一个参数，方便后面找到这个进程
-    #     cmd = task_name + " {} &".format(node)
+    #     cmd = "taskset -c {} ".format(core) + task_name + " {} &".format(node)
     #     print("cmd: ", cmd)
     #     host.cmd(cmd)
+    for task in task_list:
+        node = task[0]
+        task_name = task_dict[task[1]]
+        node_dict[node]["task"] = task[1]
+        host = net.get(node)
+        # 给程序多传一个参数，方便后面找到这个进程
+        cmd = task_name + " {} &".format(node)
+        print("cmd: ", cmd)
+        host.cmd(cmd)
+    print("node_dict: ", node_dict)
     return 'task initialized'
 
 

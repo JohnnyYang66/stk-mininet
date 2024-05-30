@@ -1,6 +1,6 @@
 import subprocess
 
-command = 'ps -e -o pid,psr,%cpu,cmd | grep \"test.py\"'
+command = 'ps -e -o pid,psr,%cpu,cmd | grep \"python\"'
 process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 stdout, stderr = process.communicate()
 # 处理输出结果
