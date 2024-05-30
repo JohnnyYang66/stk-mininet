@@ -32,7 +32,7 @@ class STKTopo(Topo):
         for n in range(n_obit):
             for m in range(sat_per_obit):
                 ip_ = f'10.{n}.{m}.1' # 用于连接中继卫星
-                # node = self.addNode(f'node_{n}-{m}', ip = ip_, cores=core_list[n][m])
+                # node = self.addNode(f'node_{n}-{m}', ip = ip_)
                 node = self.addHost(f'node_{n}-{m}', cls=CPULimitedHost, ip=ip_, cores=core_list[n][m])
                 print("{}-{} assigned to core {}".format(n, m, core_list[n][m]))
                 self.node_list[n].append(node)

@@ -13,6 +13,9 @@ topo={'topo':None}
 
 task_dict = {"default": "python3 /home/ubuntu/Downloads/graduation/stk-mininet/mininetTest/test.py"}
 
+numPlane = 0
+numSatellite = 0
+
 
 # 为各个node分配核
 def assignCore(n, m):
@@ -29,15 +32,19 @@ def assignCore(n, m):
 
 
 def changeCore(node, pid, new_core):
-    node.cmd('taskset -cp {core} {pid}'.format(new_core, pid))
+    node.cmd('taskset -cp {} {}'.format(new_core, pid))
 
 
 # 使用方法 requests.get(r'http://ip:8000/create/轨道数/轨道卫星数')
 @app.route('/create/<int:n>/<int:m>')
 def creat(n,m):
+    global numPlane
+    global numSatellite
+    numPlane = n
+    numSatellite = m
     setLogLevel( 'info' )
     info( '*** Creating network\n' )
-    # TODO:暂时将init_list设置为均分，后面核多的话再改
+    # 暂时将init_list设置为均分，后面核多的话再改
     init_list = assignCore(n, m)
     net = Mininet(topo=STKTopo(n, m, init_list))
     topo['topo'] = net
@@ -84,15 +91,25 @@ def initTask():
     task_list = request.get_json()
     print("task_list: ", task_list)
     net = topo['topo']
+    init_list = assignCore(numPlane, numSatellite)
     # 获取节点名称和任务名称
-    for task in task_list:
-        node = task[0]
-        task_name = task_dict[task[1]]
+    for i in range(len(task_list)):
+        node = task_list[i][0]
+        task_name = task_dict[task_list[i][1]]
         host = net.get(node)
+        core = init_list[0][i]
         # 给程序多传一个参数，方便后面找到这个进程
-        cmd = task_name + " {} &".format(node)
+        cmd = "taskset -c {} ".format(core) + task_name + " {} &".format(node)
         print("cmd: ", cmd)
         host.cmd(cmd)
+    # for task in task_list:
+    #     node = task[0]
+    #     task_name = task_dict[task[1]]
+    #     host = net.get(node)
+    #     # 给程序多传一个参数，方便后面找到这个进程
+    #     cmd = task_name + " {} &".format(node)
+    #     print("cmd: ", cmd)
+    #     host.cmd(cmd)
     return 'task initialized'
 
 
@@ -117,7 +134,7 @@ def modifyCore():
 
 @app.route('/getNodeInfo/')
 def getNodeInfo():
-    # TODO：后续加一个接口，用pqos监测
+    # 后续加一个接口，用pqos监测
     command = 'ps -e -o pid,psr,%cpu,cmd | grep \"test.py\"'
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     stdout, stderr = process.communicate()
@@ -135,9 +152,9 @@ def getNodeInfo():
             cpu = parts[2]
             cmd = parts[-1]
             process_info.append((pid, psr, cpu, cmd))
+    print("process_info: ", process_info)
     return jsonify(process_info)
 
 
 if __name__ == "__main__":
-    # 20240530 modifyCore这个接口还没测，回头看看
     app.run('0.0.0.0', '8000', debug=True)
