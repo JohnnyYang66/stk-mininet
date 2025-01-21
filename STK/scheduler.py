@@ -1,4 +1,4 @@
-# from STK import connectInterface
+from STK.ConnectInterface import ConnectInterface
 import requests
 
 

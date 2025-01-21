@@ -1,0 +1,26 @@
+@startuml classes_test
+set namespaceSeparator none
+class "ConnectInterface" as ConnectInterface.ConnectInterface {
+  Read_Scenario : bool
+  numOfPlane : int
+  numOfSatellite : int
+  stkRoot : _Dispatch, Dispatch
+  stkxApp : _Dispatch, Dispatch
+  uiApp : _Dispatch, Dispatch
+  useStkEngine : bool
+  Change_Sat_color(sat_list)
+  addTransmitterReceiver(sat_list)
+  computeAccess(access, ts)
+  createSatellite(scenario, numOrbitPlanes, numSatsPerPlane, hight, Inclination, name)
+  creatingAllAccess(sat_list, sat_dic, data_list, ts)
+  getLinkChange(sat_list, sat_dic)
+  getSatReceiver(sat, GT, frequency)
+  getTime(ts)
+  midLink(sat_list, data_list)
+  modifySatellite(sat_list, data_list)
+  setArgs(satellite)
+  setReceiverParameter(receiver, GT, frequency)
+  setTransmitterParameter(transmitter, frequency, EIRP, DataRate)
+  startStk()
+}
+@enduml
