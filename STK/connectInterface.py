@@ -17,7 +17,7 @@ class ConnectInterface:
     numOfSatellite = 100
 
     useStkEngine = False
-    Read_Scenario = False
+    readScenario = False
     ############################################################################
     # Scenario Setup
     ############################################################################
@@ -242,7 +242,7 @@ class ConnectInterface:
 
 
 
-    def Change_Sat_color(self, sat_list):
+    def changeSatcolor(self, sat_list):
         # 修改卫星及其轨道的颜色
         print('Changing Color of Satellite')
         for each_sat in sat_list:
@@ -297,7 +297,7 @@ class ConnectInterface:
     else:
         # Launch GUI
         print("Launching STK...")
-        if not Read_Scenario:
+        if not readScenario:
             uiApp = CreateObject("STK11.Application")
         else:
             uiApp = GetActiveObject("STK11.Application")

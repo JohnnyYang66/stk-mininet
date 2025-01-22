@@ -5,7 +5,7 @@ from mininet.net import Mininet
 from mininet.cli import CLI
 from threading import Thread
 
-import config
+from config import Config
 
 from modify_Link import modifyLink, modifyNode, get_next, set_ip_table
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     setLogLevel( 'info' )
     info( '*** Creating network\n' )
-    net = Mininet(topo=STKTopo(config.n, config.m))
+    net = Mininet(topo=STKTopo(Config.n, Config.m))
     topo['topo'] = net
     
     net.start()
@@ -79,9 +79,9 @@ if __name__ == "__main__":
     t = Thread(target=app.run, args=('0.0.0.0', '8000'), daemon=True)
     t.start()
 
-    for n in range(config.n):
-            for m in range(config.m): 
-                n_, m_ = get_next(n,m, config.n, config.m)
+    for n in range(Config.n):
+            for m in range(Config.m):
+                n_, m_ = get_next(n,m, Config.n, Config.m)
                 node1 = f'node_{n}-{m}'
                 node2 = f'node_{n}-{m_}'
                 # node3 = f'node_{n_}-{m}'

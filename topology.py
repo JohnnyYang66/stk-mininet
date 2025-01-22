@@ -8,7 +8,7 @@ from mininet.link import TCIntf
 from mininet.node import CPULimitedHost
 from modify_Link import get_next
 
-import config
+from config import Config
 
 
 
@@ -43,17 +43,17 @@ class STKTopo(Topo):
                 self.node_list[n].append(node)
                 self.addLink(node, mid_sat, intf=TCIntf,
                              params1={
-                                'ip': f'10.{n}.{m}.1/8', 
-                                'bw': config.mid_bw,
-                                'delay': config.mid_delay,
-                                'jitter': config.mid_jitter,
-                                'loss': config.mid_loss
-                            }, 
+                                'ip': f'10.{n}.{m}.1/8',
+                                'bw': Config.mid_bw,
+                                'delay': Config.mid_delay,
+                                'jitter': Config.mid_jitter,
+                                'loss': Config.mid_loss
+                            },
                             params2={
-                                'bw': config.mid_bw,
-                                'delay': config.mid_delay,
-                                'jitter': config.mid_jitter,
-                                'loss': config.mid_loss
+                                'bw': Config.mid_bw,
+                                'delay': Config.mid_delay,
+                                'jitter': Config.mid_jitter,
+                                'loss': Config.mid_loss
                             }
                             )
 
@@ -69,17 +69,17 @@ class STKTopo(Topo):
                             intf=TCIntf, 
                             params1={ #? ip最后一位, 1,2,3,4 分别对应 右 下 左 上
                                 'ip': f'10.{n}.{m}.2/8',  # 连接右侧卫星
-                                'bw': config.bw,
-                                'delay': config.delay,
-                                'jitter': config.jitter,
-                                'loss': config.loss
+                                'bw': Config.bw,
+                                'delay': Config.delay,
+                                'jitter': Config.jitter,
+                                'loss': Config.loss
                             },
                             params2={
                                 'ip': f'10.{n}.{m_}.3/8',  # 连接左侧卫星
-                                'bw': config.bw,
-                                'delay': config.delay,
-                                'jitter': config.jitter,
-                                'loss': config.loss
+                                'bw': Config.bw,
+                                'delay': Config.delay,
+                                'jitter': Config.jitter,
+                                'loss': Config.loss
                             }
                             )
 
